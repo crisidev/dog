@@ -70,9 +70,12 @@ pretty_assertions = "0.7"
 
 # cosmo patch: route std's libc to our cfg(cosmo)-gated fork so the
 # extern-static overrides apply under `-Z build-std`. See
-# ../patches/README.md.
+# ../patches/README.md. Also patch getrandom to skip the Linux-only
+# getrandom(2) probe (which mis-classifies cosmo's passthrough errno
+# on Mac/BSD and panics rand's thread_rng init).
 [patch.crates-io]
 libc = { path = "../libc-cosmo" }
+getrandom = { path = "../getrandom-cosmo" }
 
 [features]
 # cosmo patch: dropped the default `with_nativetls`/`with_tls`/`with_https`
