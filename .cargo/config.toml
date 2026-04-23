@@ -1,0 +1,37 @@
+# ==========================================================================
+# Cosmopolitan/APE build setup (rust-on-cosmo investigation).
+# Enabled whenever this config is consulted; `--cfg=cosmo` activates the
+# cfg(cosmo) branches in our local `libc` fork (submodule at
+# ../libc-cosmo). Requires rust nightly with rust-src.
+# ==========================================================================
+[unstable]
+build-std-features = [""]
+build-std = ["std", "panic_abort", "panic_unwind"]
+
+[build]
+rustflags = ["--cfg=cosmo"]
+
+# The rest of this file is ripgrep's upstream config.
+# --------------------------------------------------------------------------
+
+# On Windows MSVC, statically link the C runtime so that the resulting EXE does
+# not depend on the vcruntime DLL.
+#
+# See: https://github.com/BurntSushi/ripgrep/pull/1613
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+[target.i686-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+# Do the same for MUSL targets. At the time of writing (2023-10-23), this is
+# the default. But the plan is for the default to change to dynamic linking.
+# The whole point of MUSL with respect to ripgrep is to create a fully
+# statically linked executable.
+#
+# See: https://github.com/rust-lang/compiler-team/issues/422
+# See: https://github.com/rust-lang/compiler-team/issues/422#issuecomment-812135847
+[target.x86_64-unknown-linux-musl]
+rustflags = [
+  "-C", "target-feature=+crt-static",
+  "-C", "link-self-contained=yes",
+]

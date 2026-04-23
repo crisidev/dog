@@ -68,8 +68,19 @@ datetime = { version = "0.5.1", default_features = false }
 [dev-dependencies]
 pretty_assertions = "0.7"
 
+# cosmo patch: route std's libc to our cfg(cosmo)-gated fork so the
+# extern-static overrides apply under `-Z build-std`. See
+# ../patches/README.md.
+[patch.crates-io]
+libc = { path = "../libc-cosmo" }
+
 [features]
-default = ["with_idna", "with_tls", "with_https", "with_nativetls"]
+# cosmo patch: dropped the default `with_nativetls`/`with_tls`/`with_https`
+# features — native-tls wraps the host OS's TLS stack (OpenSSL /
+# SecureTransport / Schannel) which doesn't cross-compile through
+# cosmocc. Plain UDP/TCP DNS queries still work; we can opt into
+# `with_rustls` later if we want to stress pure-Rust TLS too.
+default = ["with_idna"]
 with_idna = ["dns/with_idna"]
 
 with_tls = ["dns-transport/with_tls"]
