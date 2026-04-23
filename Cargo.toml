@@ -62,6 +62,12 @@ log = "0.4"
 [target.'cfg(windows)'.dependencies]
 ipconfig = { version = "0.2" }
 
+# cosmo patch: runtime system-config lookup. Under cfg(cosmo), this
+# crate handles Windows DNS config too (via GetAdaptersAddresses),
+# which the cfg(unix)/cfg(windows) split above compiles out.
+[dependencies.cosmo-sysconf]
+path = "../cosmo-sysconf"
+
 [build-dependencies]
 datetime = { version = "0.5.1", default_features = false }
 

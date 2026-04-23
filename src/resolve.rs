@@ -81,11 +81,33 @@ impl Resolver {
 }
 
 
+// cosmo patch: under cfg(cosmo), a single APE may run on Linux, Mac,
+// the BSDs, or Windows — and `cfg(unix)` / `cfg(windows)` aren't
+// discriminators (they're pinned by target_os=linux at compile time).
+// Delegate to cosmo-sysconf, which dispatches on cosmo's runtime
+// `__hostos` bitmask (resolv.conf on Unix hosts,
+// GetAdaptersAddresses on Windows).
+#[cfg(cosmo)]
+fn system_nameservers() -> Result<Resolver, ResolverLookupError> {
+    if cfg!(test) {
+        panic!("system_nameservers() called from test code");
+    }
+
+    let servers = cosmo_sysconf::system_nameservers();
+    match servers.into_iter().next() {
+        Some(ip) => Ok(Resolver {
+            nameserver: ip.to_string(),
+            search_list: Vec::new(),
+        }),
+        None => Err(ResolverLookupError::NoNameserver),
+    }
+}
+
 /// Looks up the system default nameserver on Unix, by querying
 /// `/etc/resolv.conf` and using the first line that specifies one.
 /// Returns an error if there’s a problem reading the file, or `None` if no
 /// nameserver is specified in the file.
-#[cfg(unix)]
+#[cfg(all(unix, not(cosmo)))]
 fn system_nameservers() -> Result<Resolver, ResolverLookupError> {
     use std::fs::File;
     use std::io::{BufRead, BufReader};

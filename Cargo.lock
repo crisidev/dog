@@ -110,6 +110,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
+name = "cosmo-sysconf"
+version = "0.1.0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "ctor"
 version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -168,6 +175,7 @@ version = "0.2.0-pre"
 dependencies = [
  "ansi_term",
  "atty",
+ "cosmo-sysconf",
  "datetime",
  "dns",
  "dns-transport",
